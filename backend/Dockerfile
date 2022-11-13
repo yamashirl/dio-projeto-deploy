@@ -1,9 +1,7 @@
-FROM php:7-alpine
+FROM php:7-apache
 
 RUN docker-php-ext-install mysqli
 
-WORKDIR /usr/src/app
-COPY ["index.php", "conexao.php", "/usr/src/app/"]
-
-CMD [ "php", "./index.php" ]
+WORKDIR /var/www/html
+COPY ["index.php", "conexao.php", "/var/www/html/"]
 
