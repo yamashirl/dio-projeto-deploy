@@ -1,0 +1,95 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database-deployment
+  labels:
+    app: comentario-app
+    role: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comentario-app
+      role: database
+  template:
+    metadata:
+      name: database-pod
+      labels:
+        app: comentario-app
+        role: database
+    spec:
+      containers:
+      - name: mysql-container
+        image: DATABASE_IMAGE
+        args:
+        - "--ignore-db-dir=lost+found"
+        volumeMounts:
+        - name: database-storage
+          mountPath: /var/lib/mysql
+        ports:
+        - name: database-port
+          containerPort: 3306
+      volumes:
+      - name: database-storage
+        persistentVolumeClaim:
+          claimName: database-claim
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: comentario-app
+    role: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comentario-app
+      role: backend
+  template:
+    metadata:
+      name: backend-pod
+      labels:
+        app: comentario-app
+        role: backend
+    spec:
+      containers:
+      - name: php-container
+        image: BACKEND_IMAGE
+        ports:
+        - name: backend-port
+          containerPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: comentario-app
+    role: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: comentario-app
+      role: frontend
+  template:
+    metadata:
+      name: frontend-pod
+      labels:
+        app: comentario-app
+        role: frontend
+    spec:
+      containers:
+      - name: apache-container
+        image: FRONTEND_IMAGE
+        ports:
+        - name: frontend-port
+          containerPort: 80
+
