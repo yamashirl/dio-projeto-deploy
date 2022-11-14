@@ -1,5 +1,6 @@
-FROM httpd:2-alpine
+FROM nginx:stable-alpine
 
-COPY ["index.html", "css.css", "js.js", "/usr/local/apache2/htdocs/"]
-
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY ["nginx.conf", "/etc/nginx/conf.d"]
+COPY ["index.html", "css.css", "js.js", "/usr/share/nginx/html/"]
 
