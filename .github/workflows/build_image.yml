@@ -1,0 +1,44 @@
+name: build-image
+on: [push]
+env:
+
+jobs:
+  build:
+    name: Build container images and push to private AWS ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: {{ secrets.aws_arn }}
+          region: us-west1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build images and push to ECR
+        env:
+          ECR_URL: ${{ steps.login-ecr.outputs.registry }}
+
+          DATABASE_NAME: dio-projeto-database
+          DATABASE_TAG: 1.0
+
+          BACKEND_NAME: dio-projeto-backend
+          BACKENG_TAG: 1.0
+
+          FRONTEND_NAME: dio-projeto-frontend
+          FRONTEND_TAG: 1.0
+        run: |
+          docker image build database/. -t $ECR_URL/$DATABASE_NAME:$DATABASE_TAG
+          docker image push $ECR_URL/$DATABASE_NAME:$DATABASE_TAG
+
+          docker image build backend/.  -t $ECR_URL/$BACKEND_NAME:$BACKEND_TAG
+          docker image push $ECR_URL/$BACKEND_NAME:$BACKEND_TAG
+
+          docker image build frontend/. -t $ECR_URL/$FRONTEND_NAME:$FRONTEND_TAG
+          docker image push $ECR_URL/$FRONTEND_NAME:$FRONTEND_TAG
+
