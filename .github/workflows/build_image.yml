@@ -1,7 +1,5 @@
 name: build-image
 on: [push]
-env:
-
 jobs:
   build:
     name: Build container images and push to private AWS ECR
