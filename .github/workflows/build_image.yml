@@ -12,7 +12,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.aws_arn }}
-          aws-region: us-west1
+          aws-region: us-west-1
           aws-access-key-id: ${{ secrets.aws_userid }}
           aws-secret-access-key: ${{ secrets.aws_accesskey }}
 
