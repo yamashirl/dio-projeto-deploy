@@ -15,6 +15,7 @@ jobs:
           aws-region: us-west-1
           aws-access-key-id: ${{ secrets.aws_userid }}
           aws-secret-access-key: ${{ secrets.aws_accesskey }}
+          role-duration-seconds: 500
 
       - name: Login to Amazon ECR
         id: login-ecr
