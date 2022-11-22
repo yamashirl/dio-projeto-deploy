@@ -26,13 +26,13 @@ jobs:
           ECR_URL: ${{ steps.login-ecr.outputs.registry }}
 
           DATABASE_NAME: dio-projeto-database
-          DATABASE_TAG: 1.0
+          DATABASE_TAG: "1.0"
 
           BACKEND_NAME: dio-projeto-backend
-          BACKENG_TAG: 1.0
+          BACKENG_TAG: "1.0"
 
           FRONTEND_NAME: dio-projeto-frontend
-          FRONTEND_TAG: 1.0
+          FRONTEND_TAG: "1.0"
         run: |
           docker image build database/. -t $ECR_URL/$DATABASE_NAME:$DATABASE_TAG
           docker image push $ECR_URL/$DATABASE_NAME:$DATABASE_TAG
