@@ -38,4 +38,42 @@ jobs:
 
           docker image build frontend/. -t $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
           docker image push $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
+  deploy:
+    name: Deploy app to running cluster
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.aws_arn }}
+          aws-region: us-west-1
+          aws-access-key-id: ${{ secrets.aws_userid }}
+          aws-secret-access-key: ${{ secrets.aws_accesskey }}
+          role-duration-seconds: 900
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Extract SSH Private key to a file
+        run: |
+          echo ${{ secrets.ssh_key }} | tee key.pem
+
+      - name: Deploy app via ssh
+        env:
+          ECR_URL: ${{ steps.login-ecr.outputs.registry }}
+
+          DATABASE_NAME: dio-projeto-database
+          BACKEND_NAME: dio-projeto-backend
+          FRONTEND_NAME: dio-projeto-frontend
+        run: |
+          sed -i "s/DATABASE_IMAGE/$ECR_URL\/$DATABASE_NAME:${{ github.sha }}/" deployments.yml
+          sed -i "s/BACKEND_IMAGE/$ECR_URL\/$BACKEND_NAME:${{ github.sha }}/" deployments.yml
+          sed -i "s/FRONTEND_IMAGE/$ECR_URL\/$FRONTEND_NAME:${{ github.sha }}/" deployments.yml
+
+          ssh -i key.pem ubuntu@${{ secrets.control_plane_ip }} kubectl apply -f deployments.yml
 
