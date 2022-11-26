@@ -61,7 +61,7 @@ jobs:
 
       - name: Extract SSH Private key to a file
         run: |
-          echo ${{ secrets.ssh_key }} | tee key.pem
+          echo ${{ secrets.ssh_key }} | base64 --decode > key.pem
 
       - name: Deploy app via ssh
         env:
