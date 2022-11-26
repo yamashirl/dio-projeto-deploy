@@ -87,7 +87,7 @@ spec:
         role: frontend
     spec:
       containers:
-      - name: apache-container
+      - name: web-container
         image: FRONTEND_IMAGE
         ports:
         - name: frontend-port
