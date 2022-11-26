@@ -30,12 +30,12 @@ jobs:
           FRONTEND_NAME: dio-projeto-frontend
 
         run: |
-          docker image build database/. -t $ECR_URL/$DATABASE_NAME:$DATABASE_TAG
+          docker image build database/. -t $ECR_URL/$DATABASE_NAME:${{ github.sha }}
           docker image push $ECR_URL/$DATABASE_NAME:${{ github.sha }}
 
-          docker image build backend/.  -t $ECR_URL/$BACKEND_NAME:$BACKEND_TAG
+          docker image build backend/.  -t $ECR_URL/$BACKEND_NAME:${{ github.sha }}
           docker image push $ECR_URL/$BACKEND_NAME:${{ github.sha }}
 
-          docker image build frontend/. -t $ECR_URL/$FRONTEND_NAME:$FRONTEND_TAG
+          docker image build frontend/. -t $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
           docker image push $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
 
