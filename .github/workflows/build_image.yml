@@ -73,10 +73,8 @@ jobs:
           DATABASE_NAME: dio-projeto-database
           BACKEND_NAME: dio-projeto-backend
           FRONTEND_NAME: dio-projeto-frontend
-        run: |
-          sed -i "s/DATABASE_IMAGE/$ECR_URL\/$DATABASE_NAME:${{ github.sha }}/" deployments.yml
-          sed -i "s/BACKEND_IMAGE/$ECR_URL\/$BACKEND_NAME:${{ github.sha }}/" deployments.yml
-          sed -i "s/FRONTEND_IMAGE/$ECR_URL\/$FRONTEND_NAME:${{ github.sha }}/" deployments.yml
 
-          ssh -i key.pem ubuntu@${{ secrets.control_plane_ip }} kubectl apply -f deployments.yml
+          TAG: ${{ github.sha }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.control_plane_ip }} "rm -rf ./dio-projeto-deploy/ && git clone https://github.com/yamashirl/dio-projeto-deploy.git && cd dio-projeto-deploy && chmod +x deploy.sh && DATABASE_NAME=$DATABASE_NAME BACKEND_NAME=$BACKEND_NAME FRONTEND_NAME=$FRONTEND_NAME ./deploy.sh $ECR_URL $TAG"
 
