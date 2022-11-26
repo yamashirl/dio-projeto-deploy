@@ -1,13 +1,13 @@
 
-#apiVersion: storage.k8s.io/v1
-#kind: StorageClass
-#metadata:
-#  name: ebs-sc
-#  labels:
-#    app: comentario-app
-#    role: persistency
-#provisioner: ebs.csi.aws.com
-#volumeBindingMode: WaitForFirstConsumer
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+  labels:
+    app: comentario-app
+    role: persistency
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
 
 ---
 
@@ -21,7 +21,7 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: gp2
+  storageClassName: ebs-sc
   resources:
     requests:
       storage: 1Gi
