@@ -60,7 +60,8 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Extract SSH Private key to a file
-        env: KEY: ${{ secrets.ssh_key }}
+        env:
+          KEY: ${{ secrets.ssh_key }}
         run: |
           echo $KEY | base64 --decode > key.pem
 
