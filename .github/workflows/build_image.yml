@@ -67,8 +67,18 @@ jobs:
           echo $ENCODED_KUBECONFIG | base64 -d > config
       - name: Deploy manifests
         env:
+          ECR_URL: ${{ steps.login-ecr.outputs.registry }}
+          TAG: ${{ github.sha }}
+          DATABASE_NAME: dio-projeto-database
+          BACKEND_NAME: dio-projeto-backend
+          FRONTEND_NAME: dio-projeto-frontend
+
           CLUSTER_ENDPOINT: ${{ secrets.control_plane_endpoint }}
         run: |
+          sed -i "s/DATABASE_IMAGE/$ECR_URL\/$DATABASE_NAME:$TAG/" deployments.yml
+          sed -i "s/BACKEND_IMAGE/$ECR_URL\/$BACKEND_NAME:$TAG/" deployments.yml
+          sed -i "s/FRONTEND_IMAGE/$ECR_URL\/$FRONTEND_NAME:$TAG/" deployments.yml
+
           kubectl --kubeconfig config apply \
             -f deployments.yml \
             -f services.yml
