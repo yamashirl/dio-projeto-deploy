@@ -38,6 +38,7 @@ jobs:
 
           docker image build frontend/. -t $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
           docker image push $ECR_URL/$FRONTEND_NAME:${{ github.sha }}
+
   deploy:
     name: Deploy app to running cluster
     needs: build
@@ -59,22 +60,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Extract SSH Private key to a file
+      - name: Decode private files
         env:
-          KEY: ${{ secrets.ssh_key }}
+          ENCODED_KUBECONFIG: ${{ secrets.encoded_kubeconfig }}
         run: |
-          echo $KEY | base64 --decode > key.pem
-          chmod 400 key.pem
-
-      - name: Deploy app via ssh
+          echo $ENCODED_KUBECONFIG | base64 -d > config
+      - name: Deploy manifests
         env:
-          ECR_URL: ${{ steps.login-ecr.outputs.registry }}
-
-          DATABASE_NAME: dio-projeto-database
-          BACKEND_NAME: dio-projeto-backend
-          FRONTEND_NAME: dio-projeto-frontend
-
-          TAG: ${{ github.sha }}
+          CLUSTER_ENDPOINT: ${{ secrets.control_plane_endpoint }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.control_plane_ip }} "rm -rf ./dio-projeto-deploy/ && git clone https://github.com/yamashirl/dio-projeto-deploy.git && cd dio-projeto-deploy && chmod +x deploy.sh && DATABASE_NAME=$DATABASE_NAME BACKEND_NAME=$BACKEND_NAME FRONTEND_NAME=$FRONTEND_NAME ./deploy.sh $ECR_URL $TAG"
+          kubectl --kubeconfig config apply \
+            -f deployments.yml \
+            -f services.yml
 
